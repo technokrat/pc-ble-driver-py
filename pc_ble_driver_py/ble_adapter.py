@@ -146,19 +146,20 @@ class Connection(DbConnection):
 class EvtSync(object):
     def __init__(self, events):
         self.conds = dict()
+        self.data = dict()
         for evt in events:
             self.conds[evt] = Condition(Lock())
-        self.data = None
+            self.data[evt] = None
 
     def wait(self, evt, timeout=5):
-        self.data = None
+        self.data[evt] = None
         with self.conds[evt]:
             self.conds[evt].wait(timeout=timeout)
-            return self.data
+            return self.data[evt]
 
     def notify(self, evt, data=None):
         with self.conds[evt]:
-            self.data = data
+            self.data[evt] = data
             self.conds[evt].notify_all()
 
 
